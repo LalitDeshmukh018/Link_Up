@@ -12,7 +12,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
 @RestController
-@RequestMapping("/post")
+@RequestMapping("/core")
 @RequiredArgsConstructor
 
 public class PostController {

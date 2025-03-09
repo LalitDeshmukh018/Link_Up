@@ -20,6 +20,36 @@
             "projectName": "user-service",
             "args": "",
             "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-DiscoveryServiceApplication<discovery-service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.Lalitdk.LinkUp.discovery_service.DiscoveryServiceApplication",
+            "projectName": "discovery-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-ApiGatewayApplication<api-gateway>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.Lalitdk.LinkUp.api_gateway.ApiGatewayApplication",
+            "projectName": "api-gateway",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
+        },
+        {
+            "type": "java",
+            "name": "Spring Boot-ConnectionServiceApplication<connection-service>",
+            "request": "launch",
+            "cwd": "${workspaceFolder}",
+            "mainClass": "com.Lalitdk.LinkUp.connection_service.ConnectionServiceApplication",
+            "projectName": "connection-service",
+            "args": "",
+            "envFile": "${workspaceFolder}/.env"
         }
     ]
 }
