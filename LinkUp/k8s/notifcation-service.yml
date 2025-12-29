@@ -1,0 +1,59 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: notification-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: notification-service
+  template:
+    metadata:
+      labels:
+        app: notification-service
+    spec:
+      containers:
+        - name: notification-service
+          image: docker.io/lalitdk018/linkup-app-notification-service:latest
+          ports:
+            - containerPort: 8083
+          env:
+            # --- PostgreSQL DB Config ---
+            - name: SPRING_DATASOURCE_URL
+              value: jdbc:postgresql://notification-db:5432/NotificationDB
+            - name: SPRING_DATASOURCE_USERNAME
+              value: user
+            - name: SPRING_DATASOURCE_PASSWORD
+              value: password
+
+            # --- Kafka Config (optional, fill your broker) ---
+            - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+              value: kafka:9092
+
+            # --- Eureka ---
+            - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+              value: http://api-gateway:8761/eureka/
+
+          resources:
+            limits:
+              memory: "300Mi"
+              cpu: "300m"
+            requests:
+              memory: "150Mi"
+              cpu: "150m"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: notification-service
+spec:
+  selector:
+    app: notification-service
+  ports:
+    - name: http
+      port: 8083
+      targetPort: 8083
+  type: ClusterIP
+

@@ -1,0 +1,16 @@
+package com.LalitDK018.LinkUp.posts_service.clients;
+
+import com.LalitDK018.LinkUp.posts_service.dto.PersonDto;
+import org.springframework.cloud.openfeign.FeignClient;
+import org.springframework.web.bind.annotation.GetMapping;
+
+import java.util.List;
+
+@FeignClient(name = "connections-service", path = "/connections", url = "${\n" + //
+        "CONNECTIONS_SERVICE_URI:}")
+public interface ConnectionsClient {
+
+    @GetMapping("/core/first-degree")
+    List<PersonDto> getFirstConnections();
+
+}

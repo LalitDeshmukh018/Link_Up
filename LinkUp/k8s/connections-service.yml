@@ -1,0 +1,79 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: connections-service
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: connections-service
+  template:
+    metadata:
+      labels:
+        app: connections-service
+    spec:
+      containers:
+      - name: connections-service
+        image: lalitdk018/linkup-app-connections-service:0.0.1-SNAPSHOT
+        imagePullPolicy: Always
+        ports:
+          - containerPort: 9030
+
+        env:
+
+          # ------------------------
+          # SPRING ACTIVE PROFILE
+          # ------------------------
+          - name: SPRING_PROFILES_ACTIVE
+            value: k8s
+
+          # ------------------------
+          # EUREKA DISCOVERY SERVER
+          # ------------------------
+          - name: EUREKA_CLIENT_SERVICEURL_DEFAULTZONE
+            value: http://discovery-server:8761/eureka
+
+          # ------------------------
+          # JWT SECRET
+          # ------------------------
+          - name: JWT_SECRETKEY
+            value: asdfladf98a7df89aysf8d9yasiudfha9s87dfa89syudhfa98sdfyaisuhdfa98sfy
+
+          # ------------------------
+          # NEO4J DB CONNECTION
+          # ------------------------
+          - name: SPRING_NEO4J_URI
+            value: bolt://neo4j:7687
+          - name: SPRING_NEO4J_AUTHENTICATION_USERNAME
+            value: neo4j
+          - name: SPRING_NEO4J_AUTHENTICATION_PASSWORD
+            value: password
+
+          # ------------------------
+          # KAFKA CONFIG
+          # ------------------------
+          - name: SPRING_KAFKA_BOOTSTRAP_SERVERS
+            value: kafka-0.kafka:9092
+
+        resources:
+          limits:
+            memory: "256Mi"
+            cpu: "500m"
+          requests:
+            memory: "128Mi"
+            cpu: "200m"
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  name: connections-service
+spec:
+  selector:
+    app: connections-service
+  ports:
+    - port: 9030
+      targetPort: 9030
+      protocol: TCP
+  type: ClusterIP

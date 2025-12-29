@@ -1,0 +1,156 @@
+services:
+  kafka: 
+    image: docker.io/bitnami/kafka:3.8  # valid tag from Docker Hub
+  # ✅ valid version from Docker Hub
+    container_name: kafka
+    volumes:
+      - "kafka_data:/bitnami"
+    networks:
+      - linkup-network
+    environment:
+      KAFKA_NODE_ID: 1
+      KAFKA_PROCESS_ROLES: broker,controller
+      KAFKA_LISTENERS: PLAINTEXT://:9092,CONTROLLER://:9093
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://kafka:9092   # ✅ use service name, not localhost
+      KAFKA_CONTROLLER_LISTENER_NAMES: CONTROLLER
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: CONTROLLER:PLAINTEXT,PLAINTEXT:PLAINTEXT
+      KAFKA_CONTROLLER_QUORUM_VOTERS: 1@kafka:9093        # ✅ match container hostname
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_REPLICATION_FACTOR: 1
+      KAFKA_TRANSACTION_STATE_LOG_MIN_ISR: 1
+      KAFKA_GROUP_INITIAL_REBALANCE_DELAY_MS: 0
+      KAFKA_NUM_PARTITIONS: 3
+
+  notification-db:
+    image: postgres
+
+    container_name: notification-db
+    environment:
+      POSTGRES_DB: NotificationDB
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    networks:
+      - linkup-network
+    volumes:
+      - notification-db-data:/var/lib/postgresql/data   
+
+  post-db:
+    image: postgres
+    container_name: post-db
+    environment:
+      POSTGRES_DB: postDB
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    networks:
+      - linkup-network
+    volumes:
+      - post-db-data:/var/lib/postgresql/data  
+
+
+
+
+  connections-db:
+    image: neo4j
+    container_name: connections-db
+    environment:
+      - NEO4J_AUTH= neo4j/password 
+    ports:
+      - "7474:7474"
+      - "7697:7687"
+
+    networks:
+      - linkup-network
+    volumes:
+      - connections-db-data:/data
+
+       
+  user-db:
+    image: postgres
+    
+    container_name: user-db
+    environment:
+      POSTGRES_DB: userDB
+      POSTGRES_USER: user
+      POSTGRES_PASSWORD: password
+    networks:
+      - linkup-network
+    volumes:
+      - user-db-data:/var/lib/postgresql/data  
+
+  discovery-server:
+    image: lalitdk018/linkup-app/discovery-server
+    container_name: discovery-server
+    networks:
+      - linkup-network
+    ports:
+      - "8761:8761"  
+
+  notification-service:
+    image: lalitdk018/linkup-app/notification-service
+    container_name: notification-service
+    networks:
+      - linkup-network
+    depends_on:
+      - discovery-server
+      - notification-db
+      - kafka
+
+
+  posts-service:
+    image: lalitdk018/linkup-app/posts-service
+    container_name: posts-service
+    networks:
+      - linkup-network
+    depends_on:
+      - discovery-server
+      - postDB-db
+      - kafka
+
+
+  user-service:
+    image: lalitdk018/linkup-app/user-service
+    container_name: user-service
+    networks:
+      - linkup-network
+    depends_on:
+      - discovery-server
+      - userDB
+      - kafka
+
+
+
+
+  connections-service:
+    image: lalitdk018/linkup-app/connections-service
+    container_name: connections-service
+    networks:
+      - linkup-network
+    depends_on:
+      - discovery-server
+      - connections-db
+      - kafka
+
+
+
+  api-gateway:
+    image: lalitdk018/linkup-app/api-gateway
+    container_name: connections-service
+    networks:
+      - linkup-network
+    depends_on:
+      - discovery-server
+      
+
+
+
+
+
+
+networks:
+  linkup-network:
+
+volumes:
+  kafka_data:
+  notification-db-data:
+  post-db-data:
+  user-db-data: 
